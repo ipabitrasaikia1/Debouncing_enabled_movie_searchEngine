@@ -18,6 +18,10 @@
             width: 206px;
             overflow: scroll;
             border-top: hidden;
+           
+        }
+        #display{
+            margin: auto;
         }
     </style>
 </head>
@@ -27,6 +31,8 @@
     <input oninput="debounce(main1,1000)" id="movie" type="text" placeholder="Enter Movie Name">
 
     <div id="movies"></div>
+
+    <div id="display"></div>
 
 </body>
 
@@ -45,7 +51,7 @@
             let res = await fetch(`http://www.omdbapi.com/?s=${movie_name}&apikey=9ca24cf1`);
 
             let data = await res.json()
-            // console.log(data)
+            //  console.log(data)
             return data;
 
         }
@@ -69,13 +75,50 @@
         moviesDiv.innerHTML = null;
         movies.forEach(function (movie) {
 
-            let p = document.createElement("p")
-            p.innerText = movie.Title
+        
+            let posterDiv = document.createElement("div")
+           
+            posterDiv.style = " box-sizing: border-box;width=90%;border:1px solid red"
+            posterDiv.onclick = function () {
+                ShowThisMovie(movie)
+            }
 
-            moviesDiv.append(p)
+
+            let p = document.createElement("img")
+            p.src = movie.Poster
+            p.style = "width:95%"
+           
+            posterDiv.append(p)
+
+            moviesDiv.append(posterDiv)
         })
 
     }
+
+
+    let parent = document.getElementById("display")
+
+    function ShowThisMovie(m){
+        console.log("This movie ",m)
+
+        parent.innerHTML = null;
+
+        let div = document.createElement("div")
+
+        let image = document.createElement("img")
+        image.src = m.Poster
+
+        let title = document.createElement("p")
+        title.textContent = m.Title
+
+        div.append(image,title)
+        parent.append(div)
+
+        
+    }
+
+
+
 
 
     async function main1() {
@@ -84,7 +127,7 @@
 
         let res = await SearchMovies(name)
 
-        console.log(res.Search)
+        console.log("resSear",res.Search)
 
         appendMovies(res.Search)
 
