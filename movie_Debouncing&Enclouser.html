@@ -18,19 +18,51 @@
             width: 206px;
             overflow: scroll;
             border-top: hidden;
-           
+
         }
-        #display{
+
+        #display {
             margin: auto;
+            margin-top: 30px;
+            width: 50%;
+            border: 1px ;
+            border: 1px solid blue;
+        }
+
+        #topMovies{
+            width: 80%;
+            margin: auto;
+            height: 500px;
+            display: flex;
+            gap: 4px;
+            overflow: scroll;
+
+        }
+        #top{
+            text-align: center;
+            font-size: 50px;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+        }
+        #searchBox{
+            width: 15%;
+            margin: auto;
+            border: 1px ;
+            padding-left: 20px;
         }
     </style>
 </head>
 
 <body>
+        <div id="searchBox">
+            <input oninput="debounce(main1,1000)" id="movie" type="text" placeholder="Enter Movie Name">
+            <div id="movies"></div>
 
-    <input oninput="debounce(main1,1000)" id="movie" type="text" placeholder="Enter Movie Name">
 
-    <div id="movies"></div>
+        </div>
+    
+    
+    <div id="top">Top Movies</div>
+    <div id="topMovies"></div>
 
     <div id="display"></div>
 
@@ -43,6 +75,7 @@
     let TimerID;
 
     let moviesDiv = document.getElementById("movies")
+    let TopMoviesDiv = document.getElementById("topMovies")
 
     async function SearchMovies(movie_name) {
 
@@ -75,22 +108,23 @@
         moviesDiv.innerHTML = null;
         movies.forEach(function (movie) {
 
-        
-            let posterDiv = document.createElement("div")
+            console.log("Moviee :: ",movie)
+            // let posterDiv = document.createElement("div")
+
+            // posterDiv.style = " box-sizing: border-box;width=90%;border:1px "
            
-            posterDiv.style = " box-sizing: border-box;width=90%;border:1px solid red"
-            posterDiv.onclick = function () {
+
+
+            let p = document.createElement("p")
+            p.textContent = movie.Title
+          
+            p.onclick = () => {
                 ShowThisMovie(movie)
             }
 
+            // posterDiv.append(p)
 
-            let p = document.createElement("img")
-            p.src = movie.Poster
-            p.style = "width:95%"
-           
-            posterDiv.append(p)
-
-            moviesDiv.append(posterDiv)
+            moviesDiv.append(p)
         })
 
     }
@@ -98,26 +132,91 @@
 
     let parent = document.getElementById("display")
 
-    function ShowThisMovie(m){
-        console.log("This movie ",m)
+    function ShowThisMovie(m) {
+        console.log("This movie ", m)
 
         parent.innerHTML = null;
 
         let div = document.createElement("div")
+        let imgDiv = document.createElement("div")
+        imgDiv.style = "box-sizing:border-box;border:1px solid red;width:100%;height:600px"
+
 
         let image = document.createElement("img")
         image.src = m.Poster
+        image.style = "width:100%;height:100%"
+        imgDiv.append(image)
 
         let title = document.createElement("p")
         title.textContent = m.Title
 
-        div.append(image,title)
+      
+        div.append(imgDiv, title)
         parent.append(div)
 
-        
+
     }
 
 
+
+
+    async function TopMovies() {
+
+        try {
+
+            let res = await fetch("https://api.themoviedb.org/3/discover/movie?api_key=e5ee51050be0e283328aa3f345db35e6&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=1&with_watch_monetization_types=flatrate");
+
+            let data = await res.json()
+            //  console.log(data.results)
+            appendTopMovies(data.results);
+
+        }
+
+        catch (e) {
+
+            console.log("Error Occured", e)
+        }
+
+
+    } 
+
+    function  appendTopMovies(TopMovies){
+
+        TopMovies.forEach((el)=>{
+
+                let div = document.createElement("div");
+                div.style = "padding:5px;border:1px;"
+                
+                let imgDiv = document.createElement("div")
+                imgDiv.style = "box-sizing:border-box;width:500px"
+
+                let image = document.createElement("img")
+                image.style = "height:100%"
+
+                image.src = "https://image.tmdb.org/t/p/w500"+el.poster_path
+
+                imgDiv.append(image)
+
+                let title = document.createElement("p")
+                title.style = "font-weight:bold;overflow:hidden"
+
+                title.textContent = el.title
+
+                div.append(image,title)
+
+                TopMoviesDiv.append(div)
+
+            
+
+        })
+
+    }
+
+
+
+
+
+TopMovies()
 
 
 
@@ -127,24 +226,24 @@
 
         let res = await SearchMovies(name)
 
-        console.log("resSear",res.Search)
+        console.log("resSear", res.Search)
 
         appendMovies(res.Search)
 
-    
+
 
     }
 
-    function debounce(func,delay){
+    function debounce(func, delay) {
 
-        if(TimerID){
+        if (TimerID) {
 
             clearInterval(TimerID)
         }
 
-        TimerID = setTimeout(function(){
+        TimerID = setTimeout(() => {
             func()
-        },delay)
+        }, delay)
     }
 
 
